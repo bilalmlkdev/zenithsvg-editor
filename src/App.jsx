@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import {
   Sliders, Code, Eye, Sparkles, Copy, Check, Upload,
   ZoomIn, ZoomOut, Grid, ChevronRight, Grid2X2, Play,
-  RotateCw, Activity, Flame, Clock
+  RotateCw, Activity, Flame, Clock, Download, FileCode,
+  Share2, FileText
 } from 'lucide-react';
 
 const PRESETS = [
@@ -47,10 +48,13 @@ export default function App() {
   const [strokeLinejoin, setStrokeLinejoin] = useState('round');
 
   // Animation Studio States
-  const [animType, setAnimType] = useState('draw'); // 'draw' | 'pulse' | 'spin' | 'breathe' | 'none'
+  const [animType, setAnimType] = useState('draw');
   const [animDuration, setAnimDuration] = useState(2.5);
   const [animEasing, setAnimEasing] = useState('cubic-bezier(0.4, 0, 0.2, 1)');
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // Multi-Format Export State
+  const [exportFormat, setExportFormat] = useState('svg'); // 'svg' | 'jsx' | 'tailwind' | 'datauri'
 
   const [activeView, setActiveView] = useState('canvas');
   const [zoom, setZoom] = useState(100);
@@ -77,10 +81,47 @@ export default function App() {
 
   const processedSvg = getProcessedSvg();
 
+  // Generator for different export formats
+  const getFormattedCode = () => {
+    if (exportFormat === 'svg') {
+      return processedSvg;
+    }
+    if (exportFormat === 'jsx') {
+      const jsxBody = processedSvg
+        .replace(/stroke-width=/g, 'strokeWidth=')
+        .replace(/stroke-linecap=/g, 'strokeLinecap=')
+        .replace(/stroke-linejoin=/g, 'strokeLinejoin=')
+        .replace(/class=/g, 'className=');
+
+      return `import React from 'react';\n\nexport const VectorIcon = (props) => (\n  ${jsxBody}\n);`;
+    }
+    if (exportFormat === 'tailwind') {
+      return processedSvg.replace('<svg', `<svg className="w-6 h-6 text-indigo-400 stroke-2"`);
+    }
+    if (exportFormat === 'datauri') {
+      return `data:image/svg+xml;utf8,${encodeURIComponent(processedSvg)}`;
+    }
+    return processedSvg;
+  };
+
+  const formattedCode = getFormattedCode();
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(processedSvg);
+    navigator.clipboard.writeText(formattedCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([processedSvg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pathcraft-icon.svg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const processFile = (file) => {
@@ -91,9 +132,7 @@ export default function App() {
     }
   };
 
-  const handleFileUpload = (e) => {
-    processFile(e.target.files[0]);
-  };
+  const handleFileUpload = (e) => processFile(e.target.files[0]);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -116,7 +155,6 @@ export default function App() {
     }
   };
 
-  // Generate Keyframe Styles dynamically based on Animation Studio settings
   const getAnimationCSS = () => {
     if (!isPlaying || animType === 'none') return '';
 
@@ -175,7 +213,6 @@ export default function App() {
 
   return (
     <div className="relative flex h-screen w-screen overflow-hidden bg-black text-zinc-100 font-sans selection:bg-indigo-500 selection:text-white antialiased">
-      {/* Dynamic Animation Stylesheet Injection */}
       <style>{getAnimationCSS()}</style>
 
       {/* Floating Top Navigation Island */}
@@ -204,7 +241,7 @@ export default function App() {
               activeView === 'code' ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            <Code className="h-3.5 w-3.5" /> Code
+            <Code className="h-3.5 w-3.5" /> Code & Export
           </button>
         </div>
 
@@ -231,7 +268,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Grid Overlay */}
+        {/* Canvas Grid Overlay */}
         <div
           className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${
             gridStyle === 'dots'
@@ -242,7 +279,7 @@ export default function App() {
           }`}
         />
 
-        {/* Viewport Controls */}
+        {/* Viewport Floating Controls */}
         <div className="absolute top-4 right-4 z-20 flex items-center gap-2 rounded-xl border border-zinc-800/80 bg-zinc-950/70 p-1.5 backdrop-blur-md">
           <button
             onClick={() => setGridStyle(gridStyle === 'dots' ? 'grid' : gridStyle === 'grid' ? 'none' : 'dots')}
@@ -287,12 +324,33 @@ export default function App() {
           </div>
         ) : (
           <div className="w-full max-w-3xl rounded-2xl border border-zinc-800 bg-zinc-950/90 p-6 shadow-2xl backdrop-blur-xl z-10">
-            <div className="flex justify-between items-center mb-4 pb-3 border-b border-zinc-800 text-xs font-mono text-zinc-400">
-              <span>Processed SVG Export Code</span>
-              <span className="text-indigo-400 font-semibold">Ready to Use</span>
+            {/* Format Toggles in Code View */}
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-zinc-800">
+              <div className="flex gap-2">
+                {[
+                  { id: 'svg', label: 'Raw SVG' },
+                  { id: 'jsx', label: 'React JSX' },
+                  { id: 'tailwind', label: 'Tailwind SVG' },
+                  { id: 'datauri', label: 'Data URI' }
+                ].map((fmt) => (
+                  <button
+                    key={fmt.id}
+                    onClick={() => setExportFormat(fmt.id)}
+                    className={`px-3 py-1 rounded-lg text-xs font-mono transition ${
+                      exportFormat === fmt.id
+                        ? 'bg-indigo-600 text-white font-bold shadow-sm'
+                        : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    {fmt.label}
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs font-mono text-indigo-400 font-semibold">Ready for Production</span>
             </div>
-            <pre className="text-xs font-mono text-indigo-200 overflow-x-auto p-4 bg-zinc-900/60 rounded-xl border border-zinc-800/80 max-h-[28rem] whitespace-pre-wrap leading-relaxed">
-              {processedSvg}
+
+            <pre className="text-xs font-mono text-indigo-200 overflow-x-auto p-4 bg-zinc-900/60 rounded-xl border border-zinc-800/80 max-h-[26rem] whitespace-pre-wrap leading-relaxed">
+              {formattedCode}
             </pre>
           </div>
         )}
@@ -305,7 +363,14 @@ export default function App() {
               isPlaying ? 'bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-400/50' : 'bg-zinc-900 text-zinc-300 hover:bg-zinc-800'
             }`}
           >
-            <Play className={`h-4 w-4 ${isPlaying ? 'fill-white' : ''}`} /> {isPlaying ? 'Pause Motion' : 'Play Motion'}
+            <Play className={`h-4 w-4 ${isPlaying ? 'fill-white' : ''}`} /> {isPlaying ? 'Pause' : 'Play'}
+          </button>
+
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2 text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition"
+          >
+            <Download className="h-4 w-4" /> Export SVG File
           </button>
 
           <button
@@ -313,7 +378,7 @@ export default function App() {
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-zinc-100 to-zinc-300 px-5 py-2 text-xs font-bold text-zinc-950 shadow-md hover:from-white hover:to-zinc-200 active:scale-95 transition"
           >
             {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
-            {copied ? 'Copied!' : 'Copy SVG'}
+            {copied ? 'Copied!' : 'Copy Code'}
           </button>
         </div>
       </main>
@@ -329,7 +394,6 @@ export default function App() {
 
         {sidebarOpen && (
           <div className="w-full border-l border-zinc-800/80 bg-zinc-950/95 p-5 backdrop-blur-xl overflow-y-auto space-y-6">
-            {/* Navigation Tabs */}
             <div className="flex border-b border-zinc-800 pb-2 gap-2">
               <button
                 onClick={() => setActiveTab('properties')}
@@ -454,7 +518,6 @@ export default function App() {
 
             {activeTab === 'animation' && (
               <div className="space-y-5">
-                {/* Motion Mode Selector */}
                 <div>
                   <label className="block text-xs font-medium text-zinc-300 mb-2">Motion Mode</label>
                   <div className="grid grid-cols-2 gap-2">
@@ -485,7 +548,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Duration Slider */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs font-medium text-zinc-300">
                     <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-indigo-400" /> Speed / Duration</span>
@@ -502,7 +564,6 @@ export default function App() {
                   />
                 </div>
 
-                {/* Easing Curve Selector */}
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-zinc-300">Easing Curve</label>
                   <div className="grid grid-cols-1 gap-1.5">

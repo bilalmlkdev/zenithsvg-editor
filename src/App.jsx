@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import {
   Sliders, Code, Eye, Sparkles, Copy, Check, Upload,
-  ZoomIn, ZoomOut, Grid, ChevronRight, Grid2X2, Heart,
-  Shield, Terminal, Zap, Globe, Cpu, Layers
+  ZoomIn, ZoomOut, Grid, ChevronRight, Grid2X2, Play,
+  RotateCw, Activity, Flame, Clock
 } from 'lucide-react';
 
 const PRESETS = [
@@ -45,7 +45,13 @@ export default function App() {
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeLinecap, setStrokeLinecap] = useState('round');
   const [strokeLinejoin, setStrokeLinejoin] = useState('round');
-  const [isAnimated, setIsAnimated] = useState(false);
+
+  // Animation Studio States
+  const [animType, setAnimType] = useState('draw'); // 'draw' | 'pulse' | 'spin' | 'breathe' | 'none'
+  const [animDuration, setAnimDuration] = useState(2.5);
+  const [animEasing, setAnimEasing] = useState('cubic-bezier(0.4, 0, 0.2, 1)');
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const [activeView, setActiveView] = useState('canvas');
   const [zoom, setZoom] = useState(100);
   const [gridStyle, setGridStyle] = useState('dots');
@@ -110,8 +116,68 @@ export default function App() {
     }
   };
 
+  // Generate Keyframe Styles dynamically based on Animation Studio settings
+  const getAnimationCSS = () => {
+    if (!isPlaying || animType === 'none') return '';
+
+    if (animType === 'draw') {
+      return `
+        @keyframes pcDraw {
+          0% { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+          100% { stroke-dasharray: 1000; stroke-dashoffset: 0; }
+        }
+        .pc-animated path, .pc-animated line, .pc-animated polyline, .pc-animated circle, .pc-animated rect {
+          animation: pcDraw ${animDuration}s ${animEasing} infinite alternate;
+        }
+      `;
+    }
+
+    if (animType === 'pulse') {
+      return `
+        @keyframes pcPulse {
+          0% { filter: drop-shadow(0 0 2px ${strokeColor}); opacity: 0.7; }
+          100% { filter: drop-shadow(0 0 18px ${strokeColor}); opacity: 1; }
+        }
+        .pc-animated {
+          animation: pcPulse ${animDuration}s ${animEasing} infinite alternate;
+        }
+      `;
+    }
+
+    if (animType === 'spin') {
+      return `
+        @keyframes pcSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .pc-animated {
+          animation: pcSpin ${animDuration}s ${animEasing} infinite;
+          transform-origin: center;
+        }
+      `;
+    }
+
+    if (animType === 'breathe') {
+      return `
+        @keyframes pcBreathe {
+          0% { transform: scale(0.85); }
+          100% { transform: scale(1.1); }
+        }
+        .pc-animated {
+          animation: pcBreathe ${animDuration}s ${animEasing} infinite alternate;
+          transform-origin: center;
+        }
+      `;
+    }
+
+    return '';
+  };
+
   return (
     <div className="relative flex h-screen w-screen overflow-hidden bg-black text-zinc-100 font-sans selection:bg-indigo-500 selection:text-white antialiased">
+      {/* Dynamic Animation Stylesheet Injection */}
+      <style>{getAnimationCSS()}</style>
+
       {/* Floating Top Navigation Island */}
       <header className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex h-12 items-center gap-6 rounded-full border border-zinc-800/80 bg-zinc-950/80 px-5 backdrop-blur-xl shadow-2xl">
         <div className="flex items-center gap-2.5">
@@ -150,14 +216,13 @@ export default function App() {
         </label>
       </header>
 
-      {/* Main Spatial Stage with Drag & Drop Listener */}
+      {/* Main Spatial Stage */}
       <main
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className="relative flex-1 flex items-center justify-center bg-black overflow-hidden"
       >
-        {/* Drag & Drop Visual Backdrop Trigger */}
         {isDragging && (
           <div className="absolute inset-4 z-50 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-indigo-500 bg-indigo-950/40 backdrop-blur-md transition-all">
             <Upload className="h-12 w-12 text-indigo-400 animate-bounce mb-2" />
@@ -166,7 +231,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Grid Background Overlay */}
+        {/* Grid Overlay */}
         <div
           className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${
             gridStyle === 'dots'
@@ -214,20 +279,8 @@ export default function App() {
                 style={{ backgroundColor: strokeColor }}
               />
 
-              <style>
-                {isAnimated ? `
-                  @keyframes pathDraw {
-                    0% { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
-                    100% { stroke-dasharray: 1000; stroke-dashoffset: 0; }
-                  }
-                  .pathcraft-animated path, .pathcraft-animated line, .pathcraft-animated polyline, .pathcraft-animated circle, .pathcraft-animated rect {
-                    animation: pathDraw 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-                  }
-                ` : ''}
-              </style>
-
               <div
-                className={`relative z-10 h-full w-full flex items-center justify-center ${isAnimated ? 'pathcraft-animated' : ''}`}
+                className={`relative z-10 h-full w-full flex items-center justify-center ${isPlaying ? 'pc-animated' : ''}`}
                 dangerouslySetInnerHTML={{ __html: processedSvg }}
               />
             </div>
@@ -247,12 +300,12 @@ export default function App() {
         {/* Floating Action Dock */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 rounded-2xl border border-zinc-800/90 bg-zinc-950/90 p-2 backdrop-blur-xl shadow-2xl">
           <button
-            onClick={() => setIsAnimated(!isAnimated)}
+            onClick={() => setIsPlaying(!isPlaying)}
             className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-              isAnimated ? 'bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-400/50' : 'bg-zinc-900 text-zinc-300 hover:bg-zinc-800'
+              isPlaying ? 'bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-400/50' : 'bg-zinc-900 text-zinc-300 hover:bg-zinc-800'
             }`}
           >
-            <Sparkles className="h-4 w-4" /> {isAnimated ? 'Stop Motion' : 'Animate Path'}
+            <Play className={`h-4 w-4 ${isPlaying ? 'fill-white' : ''}`} /> {isPlaying ? 'Pause Motion' : 'Play Motion'}
           </button>
 
           <button
@@ -276,31 +329,35 @@ export default function App() {
 
         {sidebarOpen && (
           <div className="w-full border-l border-zinc-800/80 bg-zinc-950/95 p-5 backdrop-blur-xl overflow-y-auto space-y-6">
-            {/* Inspector Navigation Tabs */}
+            {/* Navigation Tabs */}
             <div className="flex border-b border-zinc-800 pb-2 gap-2">
               <button
                 onClick={() => setActiveTab('properties')}
                 className={`flex items-center gap-1.5 pb-2 text-xs font-bold transition border-b-2 ${
-                  activeTab === 'properties'
-                    ? 'border-indigo-500 text-indigo-400'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  activeTab === 'properties' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 <Sliders className="h-3.5 w-3.5" /> Properties
               </button>
               <button
-                onClick={() => setActiveTab('presets')}
+                onClick={() => setActiveTab('animation')}
                 className={`flex items-center gap-1.5 pb-2 text-xs font-bold transition border-b-2 ${
-                  activeTab === 'presets'
-                    ? 'border-indigo-500 text-indigo-400'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  activeTab === 'animation' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                <Grid2X2 className="h-3.5 w-3.5" /> Preset Library
+                <Sparkles className="h-3.5 w-3.5" /> Animation
+              </button>
+              <button
+                onClick={() => setActiveTab('presets')}
+                className={`flex items-center gap-1.5 pb-2 text-xs font-bold transition border-b-2 ${
+                  activeTab === 'presets' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <Grid2X2 className="h-3.5 w-3.5" /> Presets
               </button>
             </div>
 
-            {activeTab === 'properties' ? (
+            {activeTab === 'properties' && (
               <div>
                 <div className="space-y-2 mb-6">
                   <label className="text-xs font-semibold text-zinc-300">Raw Input</label>
@@ -393,7 +450,85 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            ) : (
+            )}
+
+            {activeTab === 'animation' && (
+              <div className="space-y-5">
+                {/* Motion Mode Selector */}
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-2">Motion Mode</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'draw', label: 'Path Draw', icon: Activity },
+                      { id: 'pulse', label: 'Glow Pulse', icon: Flame },
+                      { id: 'spin', label: '360 Rotate', icon: RotateCw },
+                      { id: 'breathe', label: 'Breathe Scale', icon: Sparkles }
+                    ].map((mode) => {
+                      const Icon = mode.icon;
+                      return (
+                        <button
+                          key={mode.id}
+                          onClick={() => {
+                            setAnimType(mode.id);
+                            setIsPlaying(true);
+                          }}
+                          className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs transition ${
+                            animType === mode.id
+                              ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400 font-bold'
+                              : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700'
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" /> {mode.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Duration Slider */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-medium text-zinc-300">
+                    <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-indigo-400" /> Speed / Duration</span>
+                    <span className="text-indigo-400 font-mono">{animDuration}s</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="6"
+                    step="0.1"
+                    value={animDuration}
+                    onChange={(e) => setAnimDuration(parseFloat(e.target.value))}
+                    className="w-full accent-indigo-500 cursor-pointer"
+                  />
+                </div>
+
+                {/* Easing Curve Selector */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-zinc-300">Easing Curve</label>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {[
+                      { label: 'Smooth Bezier', value: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+                      { label: 'Ease In-Out', value: 'ease-in-out' },
+                      { label: 'Linear Speed', value: 'linear' }
+                    ].map((ease) => (
+                      <button
+                        key={ease.value}
+                        onClick={() => setAnimEasing(ease.value)}
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-mono transition border ${
+                          animEasing === ease.value
+                            ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400 font-bold'
+                            : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700'
+                        }`}
+                      >
+                        {ease.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'presets' && (
               <div className="space-y-3">
                 <p className="text-xs text-zinc-400 mb-2">Select a vector preset to load into canvas:</p>
                 <div className="grid grid-cols-2 gap-3">

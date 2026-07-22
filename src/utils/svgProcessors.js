@@ -1,3 +1,4 @@
+// Applies stroke, fill, width, cap, and join parameters
 export const processSvgMarkup = (rawSvg, { strokeColor, fillColor, strokeWidth, strokeLinecap, strokeLinejoin }) => {
   let svg = rawSvg;
   svg = svg.replace(/stroke="[^"]*"/g, `stroke="${strokeColor}"`);
@@ -13,6 +14,7 @@ export const processSvgMarkup = (rawSvg, { strokeColor, fillColor, strokeWidth, 
   return svg;
 };
 
+// Keyframe CSS Generator Engine
 export const generateAnimationCSS = ({ isPlaying, animType, animDuration, animEasing, strokeColor }) => {
   if (!isPlaying || animType === 'none') return '';
 
@@ -67,4 +69,63 @@ export const generateAnimationCSS = ({ isPlaying, animType, animDuration, animEa
   }
 
   return '';
+};
+
+// SVG Cleaner & Optimizer Engine
+export const optimizeSvgMarkup = (svgString) => {
+  if (!svgString) return { optimized: '', rawBytes: 0, optBytes: 0, reduction: '0%' };
+
+  const rawBytes = new Blob([svgString]).size;
+  let optimized = svgString
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/>\s+</g, '><')
+    .replace(/d="([^"]+)"/g, (match, pathData) => {
+      const rounded = pathData.replace(/(\d+\.\d{3,})/g, (num) => parseFloat(num).toFixed(2));
+      return `d="${rounded}"`;
+    })
+    .trim();
+
+  const optBytes = new Blob([optimized]).size;
+  const reduction = rawBytes > 0
+    ? (((rawBytes - optBytes) / rawBytes) * 100).toFixed(1) + '%'
+    : '0%';
+
+  return { optimized, rawBytes, optBytes, reduction };
+};
+
+// Path Segment & Commands Inspector Parser
+export const parseSvgPaths = (svgString) => {
+  const pathRegex = /<path[^>]*d="([^"]+)"[^>]*>/gi;
+  const paths = [];
+  let match;
+
+  while ((match = pathRegex.exec(svgString)) !== null) {
+    const rawData = match[1];
+    const commands = [];
+    const cmdRegex = /([a-zA-Z])([\s,\-0-9.]+)/g;
+    let cmdMatch;
+
+    while ((cmdMatch = cmdRegex.exec(rawData)) !== null) {
+      const type = cmdMatch[1];
+      const args = cmdMatch[2].trim().split(/[\s,]+/).filter(Boolean);
+      commands.push({ type, args, raw: `${type} ${args.join(' ')}` });
+    }
+
+    if (commands.length === 0) {
+      const simpleRegex = /([a-zA-Z])([^a-zA-Z]*)/g;
+      let simpleMatch;
+      while ((simpleMatch = simpleRegex.exec(rawData)) !== null) {
+        const type = simpleMatch[1];
+        const args = simpleMatch[2].trim().split(/[\s,]+/).filter(Boolean);
+        if (args.length > 0 || type.match(/[MmLlZz]/)) {
+          commands.push({ type, args, raw: `${type} ${args.join(' ')}` });
+        }
+      }
+    }
+
+    paths.push({ rawData, commands });
+  }
+
+  return paths;
 };

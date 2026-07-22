@@ -11,7 +11,7 @@ export const PRESETS = [
   },
   {
     id: 'terminal',
-    name: 'Developer Terminal',
+    name: 'Dev Terminal',
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>`
   },
   {
@@ -28,5 +28,24 @@ export const PRESETS = [
     id: 'cpu',
     name: 'Core Processor',
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="12" height="12" x="6" y="6" rx="2"/><path d="M15 2v4M9 2v4M15 18v4M9 18v4M2 15h4M2 9h4M18 15h4M18 9h4"/></svg>`
+  }
+];
+
+export const COLOR_PALETTES = [
+  {
+    name: 'Cyberpunk Neon',
+    colors: ['#818cf8', '#f43f5e', '#38bdf8', '#a855f7', '#34d399', '#fbbf24']
+  },
+  {
+    name: 'Tailwind Synth',
+    colors: ['#6366f1', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6']
+  },
+  {
+    name: 'Pastel Glow',
+    colors: ['#f472b6', '#38bdf8', '#4ade80', '#facc15', '#c084fc', '#fb923c']
+  },
+  {
+    name: 'Monokai Pro',
+    colors: ['#ff6188', '#a9dc76', '#ffd866', '#fc9867', '#78dce8', '#ab9df2']
   }
 ];

@@ -80,7 +80,7 @@ export default function SidePanel({
     >
       {/* Sticky Header */}
       <div className="sticky top-1 z-10  px-5 py-4 border-b border-[var(--border)]">
-        <h1 className="text-lg font-medium tracking-tight text-[var(--text-primary)]">PathCraft</h1>
+        <h1 className="text-lg font-medium tracking-tight text-[var(--text-primary)]">ZenithSVG</h1>
       </div>
 
       {/* Scrollable Content */}

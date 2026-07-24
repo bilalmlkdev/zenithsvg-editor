@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="./public/favicon.svg" width="120" alt="PathCraft Logo" />
+  <img src="./public/favicon.svg" width="120" alt="ZenithSVG Logo" />
 </p>
 
-<h1 align="center">PathCraft</h1>
+<h1 align="center">ZenithSVG</h1>
 
 <p align="center">
   <strong>Design, animate, and export SVG icons - right in your browser.</strong><br />
@@ -25,29 +25,29 @@
 </p>
 
 <p align="center">
-  <a href="https://svgpathcraft.vercel.app">
-    <img src="https://img.shields.io/badge/%20Try%20-PathCraft-7C3AED?style=for-the-badge" alt="Try PathCraft" />
+  <a href="https://svgZenithSVG.vercel.app">
+    <img src="https://img.shields.io/badge/%20Try%20-ZenithSVG-7C3AED?style=for-the-badge" alt="Try ZenithSVG" />
   </a>
 </p>
 
 <p align="center">
-  <img src="./public/previewLight.png" width="100%" alt="PathCraft Demo" />
-  <img src="./public/previewDark.png" width="100%" alt="PathCraft Demo" />
+  <img src="./public/previewLight.png" width="100%" alt="ZenithSVG Demo" />
+  <img src="./public/previewDark.png" width="100%" alt="ZenithSVG Demo" />
 </p>
 
 ---
 
-## What is PathCraft?
+## What is ZenithSVG?
 
-**PathCraft** is a free, open‑source SVG icon design tool that runs entirely in your browser. Import any SVG, tweak its stroke and fill properties, apply stunning animations, and export the result in multiple formats - all without a single line of code.
+**ZenithSVG** is a free, open‑source SVG icon design tool that runs entirely in your browser. Import any SVG, tweak its stroke and fill properties, apply stunning animations, and export the result in multiple formats - all without a single line of code.
 
-Whether you're a designer prototyping icons, a developer looking for a ready‑to‑use React component, or a content creator in need of animated assets, PathCraft gives you a clean, fast, and private workspace.
+Whether you're a designer prototyping icons, a developer looking for a ready‑to‑use React component, or a content creator in need of animated assets, ZenithSVG gives you a clean, fast, and private workspace.
 
 ---
 
-## Why PathCraft?
+## Why ZenithSVG?
 
-Most SVG editors are either too complex (desktop apps) or too limited (online converters). PathCraft strikes the perfect balance:
+Most SVG editors are either too complex (desktop apps) or too limited (online converters). ZenithSVG strikes the perfect balance:
 
 - **100% client‑side** - Your SVG never leaves your device.
 - **Instant** - No uploads, no waiting, no rate limits.
@@ -172,8 +172,8 @@ All SVG processing is custom‑built - no external libraries used for parsing or
 
 ### Clone & Install
 ```bash
-git clone https://github.com/byllzz/pathcraft.git
-cd pathcraft
+git clone https://github.com/byllzz/ZenithSVG.git
+cd ZenithSVG
 npm install
 ```
 
@@ -190,6 +190,6 @@ If NetPen helps you, consider supporting the project:
 
 ---
   <p align="center">
- © 2026 PathCraft - Open Source MIT
+ © 2026 ZenithSVG - Open Source MIT
 </p>
 

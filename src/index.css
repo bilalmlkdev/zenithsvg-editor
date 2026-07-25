@@ -1,62 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
 @import "tailwindcss";
 
-
-/* Theme tokens */
-:root {
-  /* Light defaults */
-  --bg-base:       #F1F1F1;
-  --bg-surface:    #f4f4f5;
-  --bg-elevated:   #ffffff;
-  --bg-overlay:    rgba(255,255,255,0.95);
-  --border:        #e4e4e7;
-  --border-subtle: #f1f1f3;
-  --text-primary:  #18181b;
-  --text-secondary:#52525b;
-  --text-muted:    #a1a1aa;
-  --canvas-bg:     #ffffff;
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background-color: #1e1e1e;
+  color: white;
 }
-
-.dark {
-  --bg-base:       #0f0f0f;
-  --bg-surface:    #0a0a0a;
-  --bg-elevated:   #111111;
-  --bg-overlay:    rgba(9,9,11,0.95);
-  --border:        rgba(39,39,42,0.8);
-  --border-subtle: rgba(39,39,42,0.4);
-  --text-primary:  #f4f4f5;
-  --text-secondary:#a1a1aa;
-  --text-muted:    #52525b;
-  --canvas-bg:     #000000;
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }
 
 
-@theme {
-  --font-poppins: "Poppins";
-}
-@layer base {
-  body {
-    background-color: var(--bg-base);
-    color: var(--text-primary);
-   @apply font-poppins;
-    @apply antialiased min-h-screen;
-    selection-color: white;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  ::selection {
-    background-color: #6366f1;
-    color: white;
-  }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+/* Checkered backgrounds for transparency preview */
+.bg-checkered {
+  background-image:
+    linear-gradient(45deg, #e5e5e5 25%, transparent 25%),
+    linear-gradient(-45deg, #e5e5e5 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e5e5e5 75%),
+    linear-gradient(-45deg, transparent 75%, #e5e5e5 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
 }
 
-
+.bg-checkered-sm {
+  background-image:
+    linear-gradient(45deg, #cbd5e1 25%, transparent 25%),
+    linear-gradient(-45deg, #cbd5e1 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #cbd5e1 75%),
+    linear-gradient(-45deg, transparent 75%, #cbd5e1 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+}

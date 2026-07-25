@@ -78,7 +78,7 @@ export default function App() {
       </Separator>
 
       {/* Right Panel */}
-      <Panel id="right-panel" order={3} defaultSize="33%" minSize="20%">
+      <Panel id="right-panel" order={3} defaultSize="38%" minSize="20%">
         <RightPanel code={code} />
       </Panel>
     </Group>

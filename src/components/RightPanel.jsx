@@ -1,11 +1,20 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { ZoomIn, ZoomOut, Maximize, Download, Focus, Copy, Settings, Check } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize, Download, Focus, Copy, Settings, Check, RotateCw, FlipHorizontal, FlipVertical } from "lucide-react";
 
 const RightPanel = ({ code }) => {
   const [activeTab, setActiveTab] = useState("Preview");
   const [bgMode, setBgMode] = useState("default");
   const [pngDataUrl, setPngDataUrl] = useState(null);
+
+  // Dynamic Dimensions extracted from SVG Code (synchronized with CenterPanel)
+  const [svgWidth, setSvgWidth] = useState("400");
+  const [svgHeight, setSvgHeight] = useState("400");
+
+  // Transformation States (Rotate & Flips)
+  const [rotation, setRotation] = useState(0);
+  const [flipX, setFlipX] = useState(false);
+  const [flipY, setFlipY] = useState(false);
 
   // Code Generation Settings States
   const [isTypeScript, setIsTypeScript] = useState(false);
@@ -15,11 +24,49 @@ const RightPanel = ({ code }) => {
 
   const transformRef = useRef(null);
 
+  // Extract dimensions and reset transforms on SVG code change
+  useEffect(() => {
+    const widthMatch = code.match(/width="([^"]*)"/);
+    const heightMatch = code.match(/height="([^"]*)"/);
+    if (widthMatch) setSvgWidth(widthMatch[1].replace(/px$/, ""));
+    if (heightMatch) setSvgHeight(heightMatch[1].replace(/px$/, ""));
+    setRotation(0);
+    setFlipX(false);
+    setFlipY(false);
+  }, [code]);
+
+  // Helper to bake rotation and flips directly into SVG markup for downloads/exports
+  const getTransformedCode = (rawCode) => {
+    if (rotation === 0 && !flipX && !flipY) return rawCode;
+
+    const w = parseFloat(svgWidth) || 400;
+    const h = parseFloat(svgHeight) || 400;
+    const cx = w / 2;
+    const cy = h / 2;
+
+    let transforms = [];
+    if (rotation !== 0) transforms.push(`rotate(${rotation} ${cx} ${cy})`);
+    if (flipX || flipY) {
+      transforms.push(`translate(${cx} ${cy}) scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1}) translate(${-cx} ${-cy})`);
+    }
+    const transformStr = transforms.join(' ');
+
+    const svgOpenMatch = rawCode.match(/<svg[^>]*>/i);
+    if (!svgOpenMatch) return rawCode;
+    const svgOpen = svgOpenMatch[0];
+    const svgCloseIndex = rawCode.lastIndexOf('</svg>');
+    if (svgCloseIndex === -1) return rawCode;
+
+    const innerContent = rawCode.slice(svgOpen.length, svgCloseIndex);
+    return `${svgOpen}\n  <g transform="${transformStr}">\n    ${innerContent}\n  </g>\n</svg>`;
+  };
+
+  const processedCode = useMemo(() => getTransformedCode(code), [code, rotation, flipX, flipY, svgWidth, svgHeight]);
+
   // Robust helper to convert raw SVG attributes to React CamelCase and format structure
   const convertToReactJSX = (svgString, isRN = false) => {
     let cleaned = svgString.trim();
 
-    // Convert hyphenated attributes to camelCase
     cleaned = cleaned.replace(/([a-z]+)-([a-z]+)=/g, (match, p1, p2) => {
       return p1 + p2.charAt(0).toUpperCase() + p2.slice(1) + '=';
     });
@@ -87,9 +134,9 @@ const RightPanel = ({ code }) => {
     return cleaned;
   };
 
-  // Generate React Code applying user preferences (TS, Quotes, Semicolons)
+  // Generate React Code applying user preferences
   const getReactCode = () => {
-    let formatted = convertToReactJSX(code, false);
+    let formatted = convertToReactJSX(processedCode, false);
     const q = singleQuotes ? "'" : '"';
     const semi = stripSemicolons ? '' : ';';
     const propsType = isTypeScript ? ': React.SVGProps<SVGSVGElement>' : '';
@@ -105,7 +152,7 @@ const RightPanel = ({ code }) => {
 
   // Generate React Native Code applying user preferences
   const getReactNativeCode = () => {
-    let formatted = convertToReactJSX(code, true);
+    let formatted = convertToReactJSX(processedCode, true);
     const q = singleQuotes ? "'" : '"';
     const semi = stripSemicolons ? '' : ';';
     const propsType = isTypeScript ? ': SvgProps' : '';
@@ -126,22 +173,22 @@ const RightPanel = ({ code }) => {
 
   // Data URI formats
   const minifiedUri = useMemo(() => {
-    const minified = code.replace(/\s+/g, ' ').trim();
+    const minified = processedCode.replace(/\s+/g, ' ').trim();
     return `data:image/svg+xml,${encodeURIComponent(minified)}`;
-  }, [code]);
+  }, [processedCode]);
 
   const base64Uri = useMemo(() => {
     try {
-      const base64 = btoa(unescape(encodeURIComponent(code)));
+      const base64 = btoa(unescape(encodeURIComponent(processedCode)));
       return `data:image/svg+xml;base64,${base64}`;
     } catch (e) {
       return '';
     }
-  }, [code]);
+  }, [processedCode]);
 
   const encodedUri = useMemo(() => {
-    return `data:image/svg+xml,${encodeURIComponent(code)}`;
-  }, [code]);
+    return `data:image/svg+xml,${encodeURIComponent(processedCode)}`;
+  }, [processedCode]);
 
   const minifiedSize = (minifiedUri.length / 1024).toFixed(2) + ' kB';
   const base64Size = (base64Uri.length / 1024).toFixed(2) + ' kB';
@@ -152,23 +199,23 @@ const RightPanel = ({ code }) => {
       case "React": return getReactCode();
       case "React Native": return getReactNativeCode();
       case "Data URI": return encodedUri;
-      default: return code;
+      default: return processedCode;
     }
-  }, [activeTab, code, isTypeScript, singleQuotes, stripSemicolons, encodedUri]);
+  }, [activeTab, processedCode, isTypeScript, singleQuotes, stripSemicolons, encodedUri]);
 
-  // Handle PNG Conversion via HTML5 Canvas (Fully Transparent)
+  // Handle PNG Conversion via HTML5 Canvas with Applied Transforms
   useEffect(() => {
-    if (activeTab === "PNG" && code) {
+    if (activeTab === "PNG" && processedCode) {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       const img = new Image();
 
-      const blob = new Blob([code], { type: "image/svg+xml;charset=utf-8" });
+      const blob = new Blob([processedCode], { type: "image/svg+xml;charset=utf-8" });
       const url = URL.createObjectURL(blob);
 
       img.onload = () => {
-        canvas.width = img.width || 512;
-        canvas.height = img.height || 512;
+        canvas.width = img.width || parseInt(svgWidth, 10) || 512;
+        canvas.height = img.height || parseInt(svgHeight, 10) || 512;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
         setPngDataUrl(canvas.toDataURL("image/png"));
@@ -176,7 +223,7 @@ const RightPanel = ({ code }) => {
       };
       img.src = url;
     }
-  }, [code, activeTab]);
+  }, [processedCode, activeTab, svgWidth, svgHeight]);
 
   const handleDownload = () => {
     const a = document.createElement("a");
@@ -247,9 +294,9 @@ const RightPanel = ({ code }) => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-white">
+    <div className="w-full h-full flex flex-col bg-white relative">
       {/* Tabs & Settings Gear */}
-      <div className="h-15 flex items-center justify-between border-b border-gray-200 bg-white px-2 shrink-0">
+      <div className="h-15 flex items-center justify-between border-b border-gray-200 bg-white px-2 shrink-0 relative">
         <div className="flex items-center gap-2 relative left-2">
           {["Preview", "React", "React Native", "PNG", "Data URI"].map(
             (tab) => (
@@ -271,7 +318,7 @@ const RightPanel = ({ code }) => {
           )}
         </div>
 
-        {/* Gear Icon & Dropdown (Only for Code Tabs) */}
+        {/* Gear Icon & Dropdown */}
         {["React", "React Native"].includes(activeTab) && (
           <div className="relative mr-2">
             <button
@@ -283,7 +330,7 @@ const RightPanel = ({ code }) => {
             </button>
 
             {showSettings && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 text-xs">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-50 text-xs">
                 <button
                   onClick={() => setIsTypeScript(!isTypeScript)}
                   className="w-full px-4 py-2 text-left flex items-center justify-between hover:bg-gray-50 text-gray-700"
@@ -324,7 +371,7 @@ const RightPanel = ({ code }) => {
           className={`absolute inset-0 w-full h-full ${getBackgroundClass()} ${activeTab === "Preview" ? "block" : "hidden"}`}
         >
           <TransformWrapper
-            key={code} // <-- Add key={code} here so it remounts and re-centers when code changes
+            key={code}
             ref={transformRef}
             centerOnInit={true}
             wheel={{ step: 0.1 }}
@@ -332,7 +379,7 @@ const RightPanel = ({ code }) => {
           >
             {({ zoomIn, zoomOut, resetTransform }) => (
               <div className="w-full h-full relative">
-                {/* Floating Toolbar with Zoom and Fit controls */}
+                {/* Floating Toolbar with Zoom, Fit, Rotate, and Flip controls */}
                 <div className="absolute top-4 right-4 z-10 flex bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                   <button
                     onClick={() => zoomIn()}
@@ -351,26 +398,52 @@ const RightPanel = ({ code }) => {
                   <button
                     onClick={() => resetTransform()}
                     className="p-2 hover:bg-gray-100 border-r border-gray-200"
-                    title="Reset"
+                    title="Reset Zoom"
                   >
                     <Maximize size={16} className="text-gray-700" />
                   </button>
                   <button
                     onClick={handleFit}
-                    className="p-2 hover:bg-gray-100"
+                    className="p-2 hover:bg-gray-100 border-r border-gray-200"
                     title="Fit to Screen"
                   >
                     <Focus size={16} className="text-gray-700" />
+                  </button>
+                  <button
+                    onClick={() => setRotation((prev) => (prev + 90) % 360)}
+                    className="p-2 hover:bg-gray-100 border-r border-gray-200"
+                    title="Rotate 90°"
+                  >
+                    <RotateCw size={16} className="text-gray-700" />
+                  </button>
+                  <button
+                    onClick={() => setFlipX((prev) => !prev)}
+                    className={`p-2 hover:bg-gray-100 border-r border-gray-200 ${flipX ? "bg-orange-50 text-orange-600" : ""}`}
+                    title="Flip Horizontal (X)"
+                  >
+                    <FlipHorizontal size={16} className={flipX ? "text-orange-600" : "text-gray-700"} />
+                  </button>
+                  <button
+                    onClick={() => setFlipY((prev) => !prev)}
+                    className={`p-2 hover:bg-gray-100 ${flipY ? "bg-orange-50 text-orange-600" : ""}`}
+                    title="Flip Vertical (Y)"
+                  >
+                    <FlipVertical size={16} className={flipY ? "text-orange-600" : "text-gray-700"} />
                   </button>
                 </div>
 
                 <TransformComponent
                   wrapperStyle={{ width: "100%", height: "100%" }}
                 >
-                  {/* Add explicit sizing, text color, and centering for SVGs without width/height */}
                   <div
-                    className="w-72 h-72 flex items-center justify-center text-gray-800 [&>svg]:w-full [&>svg]:h-full"
-                    dangerouslySetInnerHTML={{ __html: code }}
+                    className="flex items-center justify-center text-gray-800 [&>svg]:w-full [&>svg]:h-full transition-transform duration-200"
+                    style={{
+                      width: `${svgWidth}px`,
+                      height: `${svgHeight}px`,
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: processedCode }}
                   />
                 </TransformComponent>
               </div>
@@ -388,6 +461,10 @@ const RightPanel = ({ code }) => {
                 src={pngDataUrl}
                 alt="Converted PNG"
                 className="max-w-[90%] max-h-[90%] drop-shadow-sm object-contain"
+                style={{
+                  width: `${svgWidth}px`,
+                  height: `${svgHeight}px`,
+                }}
               />
             ) : (
               <span className="text-sm text-gray-400 font-medium animate-pulse">

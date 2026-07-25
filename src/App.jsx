@@ -5,7 +5,7 @@ import CenterPanel from "./components/CenterPanel";
 import RightPanel from "./components/RightPanel";
 import { initialSvg } from "./data/svgs";
 
-function App() {
+export default function App() {
   const [code, setCode] = useState(initialSvg);
 
   return (
@@ -17,7 +17,7 @@ function App() {
       <Panel
         id="left-panel"
         order={1}
-        defaultSize="15%"
+        defaultSize="24%"
         minSize="10%"
         maxSize="40%"
       >
@@ -35,9 +35,17 @@ function App() {
           justifyContent: "center",
           position: "relative",
           zIndex: 10,
+          right: -4,
         }}
       >
-        <div style={{ width: "2px", height: "100%", background: "#444" }} />
+        <div
+          style={{
+            width: "4px",
+            height: "60px",
+            borderRadius: "20px",
+            background: "#ccc",
+          }}
+        />
       </Separator>
 
       {/* Center Panel */}
@@ -56,9 +64,17 @@ function App() {
           justifyContent: "center",
           position: "relative",
           zIndex: 10,
+          right: 2,
         }}
       >
-        <div style={{ width: "2px", height: "100%", background: "#444" }} />
+        <div
+          style={{
+            width: "4px",
+            height: "60px",
+            borderRadius: "20px",
+            background: "#ccc",
+          }}
+        />
       </Separator>
 
       {/* Right Panel */}
@@ -68,5 +84,3 @@ function App() {
     </Group>
   );
 }
-
-export default App;

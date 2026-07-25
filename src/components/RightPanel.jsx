@@ -251,22 +251,24 @@ const RightPanel = ({ code }) => {
       {/* Tabs & Settings Gear */}
       <div className="h-15 flex items-center justify-between border-b border-gray-200 bg-white px-2 shrink-0">
         <div className="flex items-center gap-2 relative left-2">
-          {["Preview", "React", "React Native", "PNG", "Data URI"].map((tab) => (
-            <button
-              key={tab}
-              className={`px-3.5 py-2 text-xs rounded-md transition-colors ${
-                activeTab === tab
-                  ? "bg-orange-100 text-orange-600 font-medium"
-                  : "text-gray-500 hover:bg-gray-100"
-              }`}
-              onClick={() => {
-                setActiveTab(tab);
-                setShowSettings(false);
-              }}
-            >
-              {tab}
-            </button>
-          ))}
+          {["Preview", "React", "React Native", "PNG", "Data URI"].map(
+            (tab) => (
+              <button
+                key={tab}
+                className={`px-3.5 py-2 text-xs rounded-md transition-colors ${
+                  activeTab === tab
+                    ? "bg-orange-100 text-orange-600 font-medium"
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setShowSettings(false);
+                }}
+              >
+                {tab}
+              </button>
+            ),
+          )}
         </div>
 
         {/* Gear Icon & Dropdown (Only for Code Tabs) */}
@@ -287,21 +289,27 @@ const RightPanel = ({ code }) => {
                   className="w-full px-4 py-2 text-left flex items-center justify-between hover:bg-gray-50 text-gray-700"
                 >
                   <span>TypeScript</span>
-                  {isTypeScript && <Check size={14} className="text-orange-500" />}
+                  {isTypeScript && (
+                    <Check size={14} className="text-orange-500" />
+                  )}
                 </button>
                 <button
                   onClick={() => setSingleQuotes(!singleQuotes)}
                   className="w-full px-4 py-2 text-left flex items-center justify-between hover:bg-gray-50 text-gray-700"
                 >
                   <span>Single Quotes</span>
-                  {singleQuotes && <Check size={14} className="text-orange-500" />}
+                  {singleQuotes && (
+                    <Check size={14} className="text-orange-500" />
+                  )}
                 </button>
                 <button
                   onClick={() => setStripSemicolons(!stripSemicolons)}
                   className="w-full px-4 py-2 text-left flex items-center justify-between hover:bg-gray-50 text-gray-700"
                 >
                   <span>Strip Semicolons</span>
-                  {stripSemicolons && <Check size={14} className="text-orange-500" />}
+                  {stripSemicolons && (
+                    <Check size={14} className="text-orange-500" />
+                  )}
                 </button>
               </div>
             )}
@@ -312,28 +320,58 @@ const RightPanel = ({ code }) => {
       {/* Content Area */}
       <div className="flex-1 relative overflow-hidden">
         {/* PREVIEW TAB */}
-        <div className={`absolute inset-0 w-full h-full ${getBackgroundClass()} ${activeTab === "Preview" ? "block" : "hidden"}`}>
-          <TransformWrapper ref={transformRef} centerOnInit={true} wheel={{ step: 0.1 }} doubleClick={{ mode: "reset" }}>
+        <div
+          className={`absolute inset-0 w-full h-full ${getBackgroundClass()} ${activeTab === "Preview" ? "block" : "hidden"}`}
+        >
+          <TransformWrapper
+            key={code} // <-- Add key={code} here so it remounts and re-centers when code changes
+            ref={transformRef}
+            centerOnInit={true}
+            wheel={{ step: 0.1 }}
+            doubleClick={{ mode: "reset" }}
+          >
             {({ zoomIn, zoomOut, resetTransform }) => (
               <div className="w-full h-full relative">
                 {/* Floating Toolbar with Zoom and Fit controls */}
                 <div className="absolute top-4 right-4 z-10 flex bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-                  <button onClick={() => zoomIn()} className="p-2 hover:bg-gray-100 border-r border-gray-200" title="Zoom In">
+                  <button
+                    onClick={() => zoomIn()}
+                    className="p-2 hover:bg-gray-100 border-r border-gray-200"
+                    title="Zoom In"
+                  >
                     <ZoomIn size={16} className="text-gray-700" />
                   </button>
-                  <button onClick={() => zoomOut()} className="p-2 hover:bg-gray-100 border-r border-gray-200" title="Zoom Out">
+                  <button
+                    onClick={() => zoomOut()}
+                    className="p-2 hover:bg-gray-100 border-r border-gray-200"
+                    title="Zoom Out"
+                  >
                     <ZoomOut size={16} className="text-gray-700" />
                   </button>
-                  <button onClick={() => resetTransform()} className="p-2 hover:bg-gray-100 border-r border-gray-200" title="Reset">
+                  <button
+                    onClick={() => resetTransform()}
+                    className="p-2 hover:bg-gray-100 border-r border-gray-200"
+                    title="Reset"
+                  >
                     <Maximize size={16} className="text-gray-700" />
                   </button>
-                  <button onClick={handleFit} className="p-2 hover:bg-gray-100" title="Fit to Screen">
+                  <button
+                    onClick={handleFit}
+                    className="p-2 hover:bg-gray-100"
+                    title="Fit to Screen"
+                  >
                     <Focus size={16} className="text-gray-700" />
                   </button>
                 </div>
 
-                <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }}>
-                  <div dangerouslySetInnerHTML={{ __html: code }} />
+                <TransformComponent
+                  wrapperStyle={{ width: "100%", height: "100%" }}
+                >
+                  {/* Add explicit sizing, text color, and centering for SVGs without width/height */}
+                  <div
+                    className="w-72 h-72 flex items-center justify-center text-gray-800 [&>svg]:w-full [&>svg]:h-full"
+                    dangerouslySetInnerHTML={{ __html: code }}
+                  />
                 </TransformComponent>
               </div>
             )}
@@ -342,12 +380,20 @@ const RightPanel = ({ code }) => {
 
         {/* PNG TAB */}
         {activeTab === "PNG" && (
-          <div className={`absolute inset-0 w-full h-full flex items-center justify-center ${getBackgroundClass()}`}>
-             {pngDataUrl ? (
-               <img src={pngDataUrl} alt="Converted PNG" className="max-w-[90%] max-h-[90%] drop-shadow-sm object-contain" />
-             ) : (
-               <span className="text-sm text-gray-400 font-medium animate-pulse">Converting to PNG...</span>
-             )}
+          <div
+            className={`absolute inset-0 w-full h-full flex items-center justify-center ${getBackgroundClass()}`}
+          >
+            {pngDataUrl ? (
+              <img
+                src={pngDataUrl}
+                alt="Converted PNG"
+                className="max-w-[90%] max-h-[90%] drop-shadow-sm object-contain"
+              />
+            ) : (
+              <span className="text-sm text-gray-400 font-medium animate-pulse">
+                Converting to PNG...
+              </span>
+            )}
           </div>
         )}
 
@@ -355,7 +401,8 @@ const RightPanel = ({ code }) => {
         {["React", "React Native"].includes(activeTab) && (
           <div className="absolute inset-0 w-full h-full bg-white">
             {activeTab === "React" && renderCodeEditor(getReactCode())}
-            {activeTab === "React Native" && renderCodeEditor(getReactNativeCode())}
+            {activeTab === "React Native" &&
+              renderCodeEditor(getReactNativeCode())}
           </div>
         )}
 
@@ -364,7 +411,12 @@ const RightPanel = ({ code }) => {
           <div className="absolute inset-0 w-full h-full bg-white overflow-auto p-4 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-gray-800">Minified Data URI <span className="text-gray-400 font-normal">{minifiedSize}</span></span>
+                <span className="text-xs font-semibold text-gray-800">
+                  Minified Data URI{" "}
+                  <span className="text-gray-400 font-normal">
+                    {minifiedSize}
+                  </span>
+                </span>
                 <button
                   onClick={() => navigator.clipboard.writeText(minifiedUri)}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs font-medium flex items-center gap-1 border border-gray-300 transition-colors"
@@ -372,14 +424,19 @@ const RightPanel = ({ code }) => {
                   <Copy size={12} /> Copy
                 </button>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 break-all max-h-50 overflow-y-auto">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 break-all max-h-35 overflow-y-auto">
                 {minifiedUri}
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-gray-800">base64 <span className="text-gray-400 font-normal">{base64Size}</span></span>
+                <span className="text-xs font-semibold text-gray-800">
+                  base64{" "}
+                  <span className="text-gray-400 font-normal">
+                    {base64Size}
+                  </span>
+                </span>
                 <button
                   onClick={() => navigator.clipboard.writeText(base64Uri)}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs font-medium flex items-center gap-1 border border-gray-300 transition-colors"
@@ -387,14 +444,19 @@ const RightPanel = ({ code }) => {
                   <Copy size={12} /> Copy
                 </button>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 break-all max-h-50 overflow-y-auto">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 break-all max-h-35 overflow-y-auto">
                 {base64Uri}
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-gray-800">encodeURIComponent <span className="text-gray-400 font-normal">{encodedSize}</span></span>
+                <span className="text-xs font-semibold text-gray-800">
+                  encodeURIComponent{" "}
+                  <span className="text-gray-400 font-normal">
+                    {encodedSize}
+                  </span>
+                </span>
                 <button
                   onClick={() => navigator.clipboard.writeText(encodedUri)}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs font-medium flex items-center gap-1 border border-gray-300 transition-colors"
@@ -402,7 +464,7 @@ const RightPanel = ({ code }) => {
                   <Copy size={12} /> Copy
                 </button>
               </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 break-all max-h-50 overflow-y-auto">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 break-all max-h-35 overflow-y-auto">
                 {encodedUri}
               </div>
             </div>
@@ -416,22 +478,22 @@ const RightPanel = ({ code }) => {
           <div className="flex items-center absolute left-3 gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
             <button
               onClick={() => setBgMode("default")}
-              className={`w-6 h-6 rounded-md border border-gray-300 bg-[#f0f0f0] ${bgMode === 'default' ? 'ring-2 ring-orange-500 ring-offset-1' : ''}`}
+              className={`w-6 h-6 rounded-md border border-gray-300 bg-[#f0f0f0] ${bgMode === "default" ? "ring-2 ring-orange-500 ring-offset-1" : ""}`}
               title="Default Gray"
             />
             <button
               onClick={() => setBgMode("white")}
-              className={`w-6 h-6 rounded-md border border-gray-300 bg-white ${bgMode === 'white' ? 'ring-2 ring-orange-500 ring-offset-1' : ''}`}
+              className={`w-6 h-6 rounded-md border border-gray-300 bg-white ${bgMode === "white" ? "ring-2 ring-orange-500 ring-offset-1" : ""}`}
               title="White"
             />
             <button
               onClick={() => setBgMode("black")}
-              className={`w-6 h-6 rounded-md border border-gray-300 bg-black ${bgMode === 'black' ? 'ring-2 ring-orange-500 ring-offset-1' : ''}`}
+              className={`w-6 h-6 rounded-md border border-gray-300 bg-black ${bgMode === "black" ? "ring-2 ring-orange-500 ring-offset-1" : ""}`}
               title="Black"
             />
             <button
               onClick={() => setBgMode("transparent")}
-              className={`w-6 h-6 rounded-md border border-gray-300 bg-checkered-sm ${bgMode === 'transparent' ? 'ring-2 ring-orange-500 ring-offset-1' : ''}`}
+              className={`w-6 h-6 rounded-md border border-gray-300 bg-checkered-sm ${bgMode === "transparent" ? "ring-2 ring-orange-500 ring-offset-1" : ""}`}
               title="Transparent"
             />
           </div>

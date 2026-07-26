@@ -88,8 +88,8 @@ Your projects are automatically saved to your browser's LocalStorage.
 Clone the repository:
 
 ```bash
-git clone https://github.com/byllzz/ZenithSVG.git
-cd ZenithSVG
+git clone https://github.com/byllzz/zenithsvg-editor.git
+cd zenithsvg-editor
 ```
 
 Install dependencies:

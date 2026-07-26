@@ -38,7 +38,7 @@ export default function Header() {
       <div className="flex items-center gap-2 relative">
         {/* GitHub Issues link */}
         <a
-          href="https://github.com/byllzz/ZenithSVG/issues"
+          href="https://github.com/byllzz/zenithsvg-editor/issues"
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full transition-colors"

@@ -27,7 +27,9 @@ export default function AboutPage() {
         </h1>
 
         <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-          <strong className="text-gray-900 dark:text-white">ZenithSVG</strong>{" "}
+          <strong className="text-gray-900 dark:text-white">
+            ZenithSVG Editor
+          </strong>{" "}
           is a free online SVG code editor with live preview, built for
           designers and developers who work with SVG graphics. Write and edit
           SVG code with syntax highlighting and see changes rendered in real
@@ -60,12 +62,12 @@ export default function AboutPage() {
           </a>{" "}
           /{" "}
           <a
-            href="https://github.com/byllzz/ZenithSVG"
+            href="https://github.com/byllzz/zenithsvg-editor"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 dark:text-blue-400 hover:underline"
           >
-            ZenithSVG
+            ZenithSVG Editor
           </a>
           , inspired by the original SVG Studio workflow.
         </p>
@@ -93,7 +95,7 @@ export default function AboutPage() {
             <span>
               Bug reports:{" "}
               <a
-                href="https://github.com/byllzz/ZenithSVG/issues"
+                href="https://github.com/byllzz/zenithsvg-editor/issues"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 dark:text-blue-400 hover:underline"
@@ -113,7 +115,7 @@ export default function AboutPage() {
           <div className="flex items-center gap-3 text-base text-gray-700 dark:text-gray-300">
             <FiGithub className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <a
-              href="https://github.com/byllzz/ZenithSVG"
+              href="https://github.com/byllzz/zenithsvg-editor"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 dark:text-blue-400 hover:underline"
@@ -140,8 +142,8 @@ export default function AboutPage() {
         </h2>
 
         <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
-          ZenithSVG is built with React, Tailwind CSS, Monaco Editor, and Vite.
-          We gratefully acknowledge the following open‑source projects and
+          ZenithSVG Editor is built with React, Tailwind CSS, Monaco Editor, and
+          Vite. We gratefully acknowledge the following open‑source projects and
           services:
         </p>
 

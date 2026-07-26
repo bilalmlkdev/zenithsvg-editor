@@ -43,7 +43,7 @@ export default function UserDropdown({ close }) {
         </button>
         <div className="border-t border-gray-100 dark:border-gray-800 my-1" />
         <a
-          href="https://github.com/byllzz/ZenithSVG/issues"
+          href="https://github.com/byllzz/zenithsvg-editor/issues"
           target="_blank"
           rel="noopener noreferrer"
           className="w-full px-4 py-2 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2.5"

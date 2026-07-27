@@ -197,7 +197,7 @@ Features include:
 
 ---
 
-# 📁 Project Structure
+# Project Structure
 
 ```text
 src/

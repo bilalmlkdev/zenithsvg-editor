@@ -61,66 +61,6 @@ Your projects are automatically saved to your browser's LocalStorage.
 
 ---
 
-#  Technology Stack
-
-| Technology | Purpose |
-|------------|---------|
-| **React 18** | UI Library |
-| **Tailwind CSS** | Styling & Responsive Design |
-| **Monaco Editor** | Code editor (VS Code engine) |
-| **React Router** | Routing (`/`, `/files`, `/about`) |
-| **React Resizable Panels** | Resizable workspace |
-| **React Zoom Pan Pinch** | Preview pan & zoom |
-| **html-to-image** | Export SVG → PNG |
-| **Vite** | Build tool & development server |
-
----
-
-#  Getting Started
-
-## Prerequisites
-
-- Node.js (v16 or later)
-- npm or yarn
-
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/byllzz/zenithsvg-editor.git
-cd zenithsvg-editor
-```
-
-Install dependencies:
-
-```bash
-npm install
-
-# or
-
-yarn install
-```
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-Open:
-
-```
-http://localhost:5173
-```
-
-(or whatever port Vite displays)
-
-
-
-
----
-
 #  Usage Guide
 
 ## 1. Workspace Layout
@@ -240,6 +180,60 @@ src/
 └── index.css
 ```
 
+---
+
+#  Technology Stack
+
+| Technology | Purpose |
+|------------|---------|
+| **React 18** | UI Library |
+| **Tailwind CSS** | Styling & Responsive Design |
+| **Monaco Editor** | Code editor (VS Code engine) |
+| **React Router** | Routing (`/`, `/files`, `/about`) |
+| **React Resizable Panels** | Resizable workspace |
+| **React Zoom Pan Pinch** | Preview pan & zoom |
+| **html-to-image** | Export SVG → PNG |
+| **Vite** | Build tool & development server |
+
+---
+
+#  Getting Started
+
+## Prerequisites
+
+- Node.js (v16 or later)
+- npm or yarn
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/byllzz/zenithsvg-editor.git
+cd zenithsvg-editor
+```
+
+Install dependencies:
+
+```bash
+npm install
+
+# or
+
+yarn install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open:
+
+```
+http://localhost:5173
+```
 ---
 
 #  Contributing

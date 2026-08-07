@@ -279,7 +279,7 @@ Please ensure your code follows the project's existing style and linting rules.
 If you enjoyed this project, consider giving it a ⭐ on GitHub. It helps others discover the project and motivates future improvements.
 
 <p align="right">
-  <a href="#qwicknotes">⬆ Back to Top</a>
+  <a href="#zenithsvg-editor">⬆ Back to Top</a>
 </p>
 
 # License (MIT)

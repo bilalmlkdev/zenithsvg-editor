@@ -4,7 +4,7 @@ export default function Footer() {
       <span>v1.0.0 © {new Date().getFullYear()} ZenithSVG Editor</span>
 
       <a
-        href="https://github.com/byllzz/zenithsvg-editor"
+        href="https://github.com/bilalmlkdev/zenithsvg-editor"
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-0.5 px-1 text-gray-700 dark:text-gray-300 font-medium"

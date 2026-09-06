@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { FiSun, FiMoon, FiZap, FiUser } from "react-icons/fi";
+import { FiSun, FiMoon, FiUser } from "react-icons/fi";
 import { LuBug } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import UserDropdown from "./UserDropdown";
-import logo from "../../../public/logo.svg";
 import { useTheme } from "../../context/ThemeContext";
 
 export default function Header() {
@@ -26,8 +25,9 @@ export default function Header() {
     <header className="h-11 px-4 flex items-center justify-between bg-gray-100/80 dark:bg-black border-b border-gray-200 dark:border-gray-700 shrink-0">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
+          {/* Use direct URL string for logo */}
           <div className="w-6 h-6 flex items-center justify-center">
-            <img src={logo} alt="Logo" />
+            <img src="/logo.svg" alt="Logo" />
           </div>
           <span className="font-bold text-[20px] text-gray-800 dark:text-white relative top-[1px] tracking-tight">
             ZenithSVG Editor
@@ -38,7 +38,7 @@ export default function Header() {
       <div className="flex items-center gap-2 relative">
         {/* GitHub Issues link */}
         <a
-          href="https://github.com/byllzz/zenithsvg-editor/issues"
+          href="https://github.com/bilalmlkdev/zenithsvg-editor/issues"
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full transition-colors"

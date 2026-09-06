@@ -6,8 +6,6 @@ import { useEditorActions } from "../../hooks/useEditorActions";
 import prettier from "prettier/standalone";
 import parserHtml from "prettier/parser-html";
 
-const DEFAULT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400"></svg>`;
-
 export default function EditorPanel({
   svgCode,
   setSvgCode,

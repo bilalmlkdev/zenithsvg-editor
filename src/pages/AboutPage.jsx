@@ -13,7 +13,6 @@ export default function AboutPage() {
   return (
     <div className="h-full p-8 bg-white dark:bg-black overflow-y-auto flex justify-center">
       <div className="w-full max-w-3xl flex flex-col">
-        {/* Back button */}
         <button
           onClick={() => navigate("/")}
           className="self-start flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors"
@@ -21,7 +20,6 @@ export default function AboutPage() {
           <FiArrowLeft className="w-4 h-4" /> Back to Editor
         </button>
 
-        {/* About Section */}
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
           About
         </h1>
@@ -45,7 +43,6 @@ export default function AboutPage() {
           leveraging modern web technologies for a smooth editing experience.
         </p>
 
-        {/* Developer Section */}
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-2 mb-3">
           Developer
         </h2>
@@ -53,16 +50,16 @@ export default function AboutPage() {
         <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
           Built and maintained by{" "}
           <a
-            href="https://github.com/byllzz"
+            href="https://github.com/bilalmlkdev"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 dark:text-blue-400 hover:underline"
           >
-            byllzz
+            bilalmlkdev
           </a>{" "}
           /{" "}
           <a
-            href="https://github.com/byllzz/zenithsvg-editor"
+            href="https://github.com/bilalmlkdev/zenithsvg-editor"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 dark:text-blue-400 hover:underline"
@@ -72,7 +69,6 @@ export default function AboutPage() {
           , inspired by the original SVG Studio workflow.
         </p>
 
-        {/* Contact & Support Section */}
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-2 mb-3">
           Contact &amp; Support
         </h2>
@@ -95,7 +91,7 @@ export default function AboutPage() {
             <span>
               Bug reports:{" "}
               <a
-                href="https://github.com/byllzz/zenithsvg-editor/issues"
+                href="https://github.com/bilalmlkdev/zenithsvg-editor/issues"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 dark:text-blue-400 hover:underline"
@@ -106,7 +102,6 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Social Section */}
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-2 mb-3">
           Social
         </h2>
@@ -115,7 +110,7 @@ export default function AboutPage() {
           <div className="flex items-center gap-3 text-base text-gray-700 dark:text-gray-300">
             <FiGithub className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <a
-              href="https://github.com/byllzz/zenithsvg-editor"
+              href="https://github.com/bilalmlkdev/zenithsvg-editor"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 dark:text-blue-400 hover:underline"
@@ -126,7 +121,7 @@ export default function AboutPage() {
           <div className="flex items-center gap-3 text-base text-gray-700 dark:text-gray-300">
             <FiSend className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <a
-              href="https://t.me/byllzz"
+              href="https://t.me/bilalmlkdev"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 dark:text-blue-400 hover:underline"
@@ -136,7 +131,6 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Technology & Credits Section */}
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-2 mb-3">
           Technology &amp; Credits
         </h2>

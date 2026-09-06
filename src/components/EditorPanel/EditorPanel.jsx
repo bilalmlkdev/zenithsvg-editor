@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import EditorToolbar from "./EditorToolbar";
 import EditorStatus from "./EditorStatus";
@@ -14,6 +14,8 @@ export default function EditorPanel({
   setLayoutMode,
 }) {
   const fileInputRef = useRef(null);
+  const editorRef = useRef(null);
+  const [editorReady, setEditorReady] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [layoutDropdownOpen, setLayoutDropdownOpen] = useState(false);
@@ -38,7 +40,7 @@ export default function EditorPanel({
     useEditorActions({ svgCode, setSvgCode, isSvgValid, setDropdownOpen });
 
   // Format code using Prettier
-  const formatCode = async (code) => {
+  const formatCode = useCallback(async (code) => {
     try {
       const formatted = await prettier.format(code, {
         parser: "html",
@@ -55,7 +57,7 @@ export default function EditorPanel({
       alert("Could not format the code. Please check the syntax.");
       return code;
     }
-  };
+  }, []);
 
   // Manual format button handler
   const handleFormat = async () => {
@@ -69,6 +71,36 @@ export default function EditorPanel({
     setSvgCode(formatted);
     handleSave(name, formatted); // pass formatted code to save
   };
+
+  // Handle editor mount
+  const handleMount = useCallback((editor) => {
+    editorRef.current = editor;
+    setEditorReady(true);
+  }, []);
+
+  // Auto-format on paste
+  useEffect(() => {
+    if (!editorReady || !editorRef.current) return;
+    const domNode = editorRef.current.getDomNode();
+    if (!domNode) return;
+
+    const handlePaste = () => {
+      // Allow the paste to be inserted first, then format after a delay
+      setTimeout(() => {
+        const currentValue = editorRef.current.getValue();
+        formatCode(currentValue).then((formatted) => {
+          if (formatted !== currentValue) {
+            setSvgCode(formatted);
+          }
+        });
+      }, 150);
+    };
+
+    domNode.addEventListener("paste", handlePaste);
+    return () => {
+      domNode.removeEventListener("paste", handlePaste);
+    };
+  }, [editorReady, formatCode, setSvgCode]);
 
   const editorOptions = {
     fontSize,
@@ -91,8 +123,8 @@ export default function EditorPanel({
         onOpen={handleOpen}
         onDownloadSVG={downloadSVG}
         onDownloadPNG={downloadPNG}
-        onSave={handleSaveWithFormat} // replaced handleSave
-        onFormat={handleFormat} // new prop
+        onSave={handleSaveWithFormat}
+        onFormat={handleFormat}
         dropdownOpen={dropdownOpen}
         setDropdownOpen={setDropdownOpen}
         layoutDropdownOpen={layoutDropdownOpen}
@@ -129,6 +161,7 @@ export default function EditorPanel({
           defaultLanguage="xml"
           value={svgCode}
           onChange={(value) => setSvgCode(value || "")}
+          onMount={handleMount}
           theme={isDark ? "vs-dark" : "light"}
           options={editorOptions}
         />

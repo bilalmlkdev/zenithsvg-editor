@@ -1,4 +1,10 @@
-import { FiZoomIn, FiZoomOut, FiRotateCcw, FiMaximize2 } from "react-icons/fi";
+import {
+  FiZoomIn,
+  FiZoomOut,
+  FiRotateCcw,
+  FiMaximize2,
+  FiAperture,
+} from "react-icons/fi";
 import DimensionsDropdown from "./DimensionsDropdown";
 import { bgOptions } from "./bgOptions.jsx";
 
@@ -12,6 +18,8 @@ export default function PreviewToolbar({
   setShowDimDropdown,
   svgCode,
   setSvgCode,
+  adaptiveColors,
+  setAdaptiveColors,
 }) {
   return (
     <div className="h-8 px-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-gray-100/80 dark:bg-gray-900/50 shrink-0">
@@ -55,6 +63,19 @@ export default function PreviewToolbar({
             </button>
           ))}
         </div>
+
+        {/* Adaptive colors toggle */}
+        <button
+          onClick={() => setAdaptiveColors(!adaptiveColors)}
+          className={`p-1.5 rounded-md transition-all ${
+            adaptiveColors
+              ? "bg-orange-100 dark:bg-orange-900/30 text-orange-600"
+              : "hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-500"
+          }`}
+          title="Toggle automatic color adaptation"
+        >
+          <FiAperture className="w-3.5 h-3.5 stroke-[1.5]" />
+        </button>
       </div>
 
       {/* Dimensions dropdown */}

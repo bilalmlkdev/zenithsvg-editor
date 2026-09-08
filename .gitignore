@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .vite/
 .vite/deps
+
+# Monaco editor assets are synced from node_modules at install/build time
+# (see scripts/sync-monaco.cjs) — not committed to keep the repo small.
+public/monaco-vs/

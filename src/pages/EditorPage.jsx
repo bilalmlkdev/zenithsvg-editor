@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import EditorPanel from "../components/EditorPanel/EditorPanel";
@@ -19,6 +19,25 @@ export default function EditorPage() {
     "zenith_layout_mode",
     "show-both",
   );
+
+  // useLocalStorage only reads its initial value once on mount, but the
+  // Files page can write "zenith_svg_code" directly (loading a saved
+  // project) while this component stays mounted in the SPA shell. Re-sync
+  // on every visit to the editor route so a loaded project actually shows.
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("zenith_svg_code");
+      if (stored !== null) {
+        const parsed = JSON.parse(stored);
+        if (parsed !== svgCode) setSvgCode(parsed);
+      }
+    } catch {
+      // ignore malformed storage, keep current in-memory value
+    }
+    // Intentionally run only on mount (i.e. each time this route is
+    // navigated to), not on every svgCode change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

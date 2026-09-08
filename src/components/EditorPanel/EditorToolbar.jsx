@@ -6,9 +6,17 @@ import {
   FiSettings,
   FiFilePlus,
   FiCode, // new icon for format
+  FiType,
+  FiDroplet,
+  FiPenTool,
+  FiChevronDown,
 } from "react-icons/fi";
-import { useRef } from "react";
+import { useState } from "react";
 import EditorSettings from "./EditorSettings";
+import TextToolPopover from "./TextToolPopover";
+import GradientToolPopover from "./GradientToolPopover";
+import StrokeToolPopover from "./StrokeToolPopover";
+import { useToast } from "../../context/ToastContext";
 
 export default function EditorToolbar({
   fileInputRef,
@@ -18,6 +26,9 @@ export default function EditorToolbar({
   onDownloadPNG,
   onSave, // now expects (projectName) and formats internally
   onFormat, // new prop
+  onInsertText,
+  onInsertGradient,
+  onInsertStyle,
   dropdownOpen,
   setDropdownOpen,
   layoutDropdownOpen,
@@ -47,6 +58,11 @@ export default function EditorToolbar({
   smoothScrolling,
   setSmoothScrolling,
 }) {
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+  const [activeTool, setActiveTool] = useState(null); // "text" | "gradient" | "stroke" | null
+  const [pngScale, setPngScale] = useState(2);
+  const [pngTransparent, setPngTransparent] = useState(true);
+  const toast = useToast();
   return (
     <div className="h-8 flex items-center gap-1 px-2 border-b border-gray-200 dark:border-gray-700 bg-gray-100/80 dark:bg-black shrink-0">
       <button
@@ -78,20 +94,125 @@ export default function EditorToolbar({
           <FiDownload className="w-3.5 h-3.5 stroke-[1.5]" /> Download
         </button>
         {dropdownOpen && (
-          <div className="absolute top-full left-0 mt-1 w-36 bg-white dark:bg-black shadow-lg rounded-md border border-gray-200 dark:border-gray-700 z-20">
+          <div className="absolute top-full left-0 mt-1 w-52 bg-white dark:bg-black shadow-lg rounded-md border border-gray-200 dark:border-gray-700 z-20 py-1">
             <button
               onClick={onDownloadSVG}
               className="block w-full text-left px-4 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
             >
               Download as SVG
             </button>
+            <div className="border-t border-gray-100 dark:border-gray-800 my-1" />
+            <div className="px-4 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+              PNG export
+            </div>
+            <div className="px-4 pb-2 flex items-center justify-between">
+              <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                Resolution
+              </span>
+              <select
+                value={pngScale}
+                onChange={(e) => setPngScale(Number(e.target.value))}
+                className="bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-1.5 py-0.5 text-[11px] text-gray-800 dark:text-gray-200 outline-none"
+              >
+                <option value={1}>1x</option>
+                <option value={2}>2x</option>
+                <option value={4}>4x</option>
+              </select>
+            </div>
+            <label className="px-4 pb-2 flex items-center justify-between cursor-pointer">
+              <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                Transparent background
+              </span>
+              <input
+                type="checkbox"
+                checked={pngTransparent}
+                onChange={(e) => setPngTransparent(e.target.checked)}
+                className="accent-orange-500"
+              />
+            </label>
             <button
-              onClick={onDownloadPNG}
-              className="block w-full text-left px-4 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+              onClick={() =>
+                onDownloadPNG({ scale: pngScale, transparent: pngTransparent })
+              }
+              className="mx-2 mt-1 mb-1.5 w-[calc(100%-1rem)] py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded transition-colors"
             >
-              Download as PNG
+              Download PNG
             </button>
           </div>
+        )}
+      </div>
+
+      {/* Tools menu: Text / Gradient / Stroke */}
+      <div className="relative">
+        <button
+          onClick={() => {
+            setToolsMenuOpen(!toolsMenuOpen);
+            setActiveTool(null);
+          }}
+          className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 rounded transition-colors"
+          title="Design tools"
+        >
+          <FiPenTool className="w-3.5 h-3.5 stroke-[1.5]" /> Tools
+          <FiChevronDown className="w-3 h-3 stroke-[2]" />
+        </button>
+
+        {toolsMenuOpen && !activeTool && (
+          <div className="absolute top-full left-0 mt-1 w-44 bg-white dark:bg-black shadow-lg rounded-md border border-gray-200 dark:border-gray-700 z-30 py-1">
+            <button
+              onClick={() => setActiveTool("text")}
+              className="w-full flex items-center gap-2 text-left px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+            >
+              <FiType className="w-3.5 h-3.5 stroke-[1.5]" /> Insert Text
+            </button>
+            <button
+              onClick={() => setActiveTool("gradient")}
+              className="w-full flex items-center gap-2 text-left px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+            >
+              <FiDroplet className="w-3.5 h-3.5 stroke-[1.5]" /> Gradient Fill
+            </button>
+            <button
+              onClick={() => setActiveTool("stroke")}
+              className="w-full flex items-center gap-2 text-left px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+            >
+              <FiPenTool className="w-3.5 h-3.5 stroke-[1.5]" /> Stroke Style
+            </button>
+          </div>
+        )}
+
+        {toolsMenuOpen && activeTool === "text" && (
+          <TextToolPopover
+            onInsert={(snippet) => {
+              onInsertText(snippet);
+              setToolsMenuOpen(false);
+              setActiveTool(null);
+              toast.info("Text element inserted");
+            }}
+            onClose={() => setActiveTool(null)}
+          />
+        )}
+
+        {toolsMenuOpen && activeTool === "gradient" && (
+          <GradientToolPopover
+            onInsert={({ id, defsSnippet }) => {
+              onInsertGradient(defsSnippet);
+              setToolsMenuOpen(false);
+              setActiveTool(null);
+              toast.info(`Gradient added — use fill="url(#${id})"`, 6000);
+            }}
+            onClose={() => setActiveTool(null)}
+          />
+        )}
+
+        {toolsMenuOpen && activeTool === "stroke" && (
+          <StrokeToolPopover
+            onInsert={({ className, styleBlock }) => {
+              onInsertStyle(styleBlock);
+              setToolsMenuOpen(false);
+              setActiveTool(null);
+              toast.info(`Stroke class added — use class="${className}"`, 6000);
+            }}
+            onClose={() => setActiveTool(null)}
+          />
         )}
       </div>
 
@@ -120,7 +241,7 @@ export default function EditorToolbar({
               <button
                 onClick={() => {
                   if (!projectName.trim()) {
-                    alert("Please enter a project name.");
+                    toast.error("Please enter a project name.");
                     return;
                   }
                   onSave(projectName); // this will auto‑format and save

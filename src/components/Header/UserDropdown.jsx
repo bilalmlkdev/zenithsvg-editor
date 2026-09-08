@@ -1,19 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FiFolder, FiCreditCard, FiMessageSquare } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
+function getOrCreateGuestId() {
+  let storedId = localStorage.getItem("zenith_guest_id");
+  if (!storedId) {
+    storedId = Math.random().toString(36).substring(2, 15).toUpperCase();
+    localStorage.setItem("zenith_guest_id", storedId);
+  }
+  return storedId;
+}
+
 export default function UserDropdown({ close }) {
   const navigate = useNavigate();
-  const [guestId, setGuestId] = useState("");
-
-  useEffect(() => {
-    let storedId = localStorage.getItem("zenith_guest_id");
-    if (!storedId) {
-      storedId = Math.random().toString(36).substring(2, 15).toUpperCase();
-      localStorage.setItem("zenith_guest_id", storedId);
-    }
-    setGuestId(storedId);
-  }, []);
+  // Lazy initializer avoids the set-state-in-effect anti-pattern: the id is
+  // read/created once, synchronously, on first render.
+  const [guestId] = useState(getOrCreateGuestId);
 
   const handleNavigate = (path) => {
     navigate(path);

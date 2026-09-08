@@ -3,6 +3,7 @@ import Editor from "@monaco-editor/react";
 import EditorToolbar from "./EditorToolbar";
 import EditorStatus from "./EditorStatus";
 import { useEditorActions } from "../../hooks/useEditorActions";
+import { useToast } from "../../context/ToastContext";
 import prettier from "prettier/standalone";
 import parserHtml from "prettier/parser-html";
 
@@ -38,32 +39,53 @@ export default function EditorPanel({
 
   const { handleNew, handleOpen, downloadSVG, downloadPNG, handleSave } =
     useEditorActions({ svgCode, setSvgCode, isSvgValid, setDropdownOpen });
+  const toast = useToast();
 
   // Format code using Prettier
-  const formatCode = useCallback(async (code) => {
-    try {
-      const formatted = await prettier.format(code, {
-        parser: "html",
-        plugins: [parserHtml],
-        tabWidth: 2,
-        useTabs: false,
-        singleQuote: false,
-        trailingComma: "none",
-        htmlWhitespaceSensitivity: "ignore",
-      });
-      return formatted;
-    } catch (error) {
-      console.error("Formatting failed:", error);
-      alert("Could not format the code. Please check the syntax.");
-      return code;
-    }
-  }, []);
+  const formatCode = useCallback(
+    async (code) => {
+      try {
+        const formatted = await prettier.format(code, {
+          parser: "html",
+          plugins: [parserHtml],
+          tabWidth: 2,
+          useTabs: false,
+          singleQuote: false,
+          trailingComma: "none",
+          htmlWhitespaceSensitivity: "ignore",
+        });
+        return formatted;
+      } catch (error) {
+        console.error("Formatting failed:", error);
+        toast.error("Couldn't format the code — check the syntax.");
+        return code;
+      }
+    },
+    [toast],
+  );
 
   // Manual format button handler
   const handleFormat = async () => {
     const formatted = await formatCode(svgCode);
     setSvgCode(formatted);
   };
+
+  // Insert a generated SVG snippet (e.g. from the Text tool) just before
+  // the closing </svg> tag, so it lands inside the current document.
+  const handleInsertText = useCallback(
+    (snippet) => {
+      setSvgCode((prev) => {
+        const closingIndex = prev.lastIndexOf("</svg>");
+        if (closingIndex === -1) return `${prev}\n${snippet}`;
+        return (
+          prev.slice(0, closingIndex) +
+          `  ${snippet}\n` +
+          prev.slice(closingIndex)
+        );
+      });
+    },
+    [setSvgCode],
+  );
 
   // Save with auto‑format
   const handleSaveWithFormat = async (name) => {
@@ -115,6 +137,31 @@ export default function EditorPanel({
     automaticLayout: true,
   };
 
+  // Insert generated <defs> (e.g. a gradient) right after the opening
+  // <svg ...> tag so it's always in scope for elements below it.
+  const handleInsertGradient = useCallback(
+    (defsSnippet) => {
+      setSvgCode((prev) => {
+        const match = prev.match(/<svg[^>]*>/i);
+        if (!match) return `${defsSnippet}\n${prev}`;
+        const insertAt = match.index + match[0].length;
+        return (
+          prev.slice(0, insertAt) +
+          `\n  ${defsSnippet}` +
+          prev.slice(insertAt)
+        );
+      });
+    },
+    [setSvgCode],
+  );
+
+  // Reuses the same "just after <svg>" insertion point as gradients — style
+  // blocks and defs both need to live near the top of the document.
+  const handleInsertStyle = useCallback(
+    (styleBlock) => handleInsertGradient(styleBlock),
+    [handleInsertGradient],
+  );
+
   return (
     <div className="w-full h-full flex flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-black">
       <EditorToolbar
@@ -125,6 +172,9 @@ export default function EditorPanel({
         onDownloadPNG={downloadPNG}
         onSave={handleSaveWithFormat}
         onFormat={handleFormat}
+        onInsertText={handleInsertText}
+        onInsertGradient={handleInsertGradient}
+        onInsertStyle={handleInsertStyle}
         dropdownOpen={dropdownOpen}
         setDropdownOpen={setDropdownOpen}
         layoutDropdownOpen={layoutDropdownOpen}

@@ -2,7 +2,7 @@ import { toPng } from "html-to-image";
 import { useToast } from "../context/ToastContext";
 import { getSanitizedSvg } from "../components/PreviewPanel/previewUtils";
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB — generous for hand-authored SVGs
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB - generous for hand-authored SVGs
 
 export function useEditorActions({
   svgCode,
@@ -72,7 +72,7 @@ export function useEditorActions({
     }
     const { scale = 2, transparent = true, filename = "design.png" } = options;
     try {
-      // Render the sanitized version only — never inject raw user markup
+      // Render the sanitized version only - never inject raw user markup
       // into the live DOM for export.
       const safeMarkup = getSanitizedSvg(svgCode);
       if (!safeMarkup) {
@@ -130,7 +130,7 @@ export function useEditorActions({
       return true;
     } catch (e) {
       console.error("Save failed", e);
-      toast.error("Save failed — your browser storage may be full.");
+      toast.error("Save failed - your browser storage may be full.");
       return false;
     }
   };

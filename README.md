@@ -90,14 +90,7 @@ src/
   <img src="https://skillicons.dev/icons?i=react,vite,tailwind,js,git" />
 </p>
 
-# Getting Started
-
-## Prerequisites
-
-- Node.js (v16 or later)
-- npm or yarn
-
-## Installation
+# Installation
 
 ```bash
 git clone https://github.com/bilalmlkdev/zenithsvg-editor.git
